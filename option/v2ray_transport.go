@@ -22,6 +22,7 @@ type _V2RayTransportOptions struct {
 	HTTPUpgradeOptions V2RayHTTPUpgradeOptions `json:"-"`
 	XHTTPOptions       V2RayXHTTPOptions       `json:"-"`
 	DNSTTOptions       DnsttOptions            `json:"-"`
+	BaleOptions        V2RayBaleOptions        `json:"-"`
 }
 
 type V2RayTransportOptions _V2RayTransportOptions
@@ -41,6 +42,8 @@ func (o V2RayTransportOptions) MarshalJSON() ([]byte, error) {
 		v = o.HTTPUpgradeOptions
 	case C.V2RayTransportTypeXHTTP:
 		v = o.XHTTPOptions
+	case C.V2RayTransportTypeBale:
+		v = o.BaleOptions
 
 	case "":
 		return nil, E.New("missing transport type")
@@ -69,6 +72,8 @@ func (o *V2RayTransportOptions) UnmarshalJSON(bytes []byte) error {
 		v = &o.HTTPUpgradeOptions
 	case C.V2RayTransportTypeXHTTP:
 		v = &o.XHTTPOptions
+	case C.V2RayTransportTypeBale:
+		v = &o.BaleOptions
 	default:
 		return E.New("unknown transport type: " + o.Type)
 	}

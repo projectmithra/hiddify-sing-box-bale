@@ -11,6 +11,7 @@ import (
 	"github.com/sagernet/sing-box/transport/v2rayhttpupgrade"
 	"github.com/sagernet/sing-box/transport/v2raywebsocket"
 	xhttp "github.com/sagernet/sing-box/transport/v2rayxhttp"
+	"github.com/sagernet/sing-box/transport/v2raybale"
 	E "github.com/sagernet/sing/common/exceptions"
 	"github.com/sagernet/sing/common/logger"
 	M "github.com/sagernet/sing/common/metadata"
@@ -42,6 +43,8 @@ func NewServerTransport(ctx context.Context, logger logger.ContextLogger, option
 		return v2rayhttpupgrade.NewServer(ctx, logger, options.HTTPUpgradeOptions, tlsConfig, handler)
 	case C.V2RayTransportTypeXHTTP:
 		return xhttp.NewServer(ctx, logger, options.XHTTPOptions, tlsConfig, handler)
+	case C.V2RayTransportTypeBale:
+		return nil, E.New("bale transport is client-only")
 	default:
 		return nil, E.New("unknown transport type: " + options.Type)
 	}
@@ -68,6 +71,8 @@ func NewClientTransport(ctx context.Context, dialer N.Dialer, serverAddr M.Socks
 		return v2rayhttpupgrade.NewClient(ctx, dialer, serverAddr, options.HTTPUpgradeOptions, tlsConfig)
 	case C.V2RayTransportTypeXHTTP:
 		return xhttp.NewClient(ctx, dialer, serverAddr, options.XHTTPOptions, tlsConfig)
+	case C.V2RayTransportTypeBale:
+		return v2raybale.NewClient(ctx, dialer, serverAddr, options.BaleOptions, tlsConfig)
 	default:
 		return nil, E.New("unknown client transport type: " + options.Type)
 	}
