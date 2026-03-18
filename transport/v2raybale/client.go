@@ -72,6 +72,7 @@ al = "fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7"
 }
 headers.Set("Accept-Language", al)
 headers.Set("X-Bale-Proto", "1")
+headers.Set("Sec-WebSocket-Protocol", "binary")
 if headers.Get("User-Agent") == "" {
 headers.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
 }
