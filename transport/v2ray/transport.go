@@ -7,11 +7,11 @@ import (
 	"github.com/sagernet/sing-box/common/tls"
 	C "github.com/sagernet/sing-box/constant"
 	"github.com/sagernet/sing-box/option"
+	"github.com/sagernet/sing-box/transport/v2raybale"
 	"github.com/sagernet/sing-box/transport/v2rayhttp"
 	"github.com/sagernet/sing-box/transport/v2rayhttpupgrade"
 	"github.com/sagernet/sing-box/transport/v2raywebsocket"
 	xhttp "github.com/sagernet/sing-box/transport/v2rayxhttp"
-	"github.com/sagernet/sing-box/transport/v2raybale"
 	E "github.com/sagernet/sing/common/exceptions"
 	"github.com/sagernet/sing/common/logger"
 	M "github.com/sagernet/sing/common/metadata"
@@ -55,7 +55,6 @@ func NewClientTransport(ctx context.Context, dialer N.Dialer, serverAddr M.Socks
 		return nil, nil
 	}
 	switch options.Type {
-
 	case C.V2RayTransportTypeHTTP:
 		return v2rayhttp.NewClient(ctx, dialer, serverAddr, options.HTTPOptions, tlsConfig)
 	case C.V2RayTransportTypeGRPC:
