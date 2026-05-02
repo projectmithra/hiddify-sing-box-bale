@@ -1,3 +1,31 @@
+#!/bin/bash
+# ============================================================
+# HIDDIFY-SING-BOX-BALE REPO FIXES
+# Run from ~/hiddify-fix directory on WSL
+# ============================================================
+set -e
+
+echo "=== Fix 1: Revert Sec-WebSocket-Protocol header ==="
+# The sagernet/ws library validates that the server echoes back
+# the subprotocol, but Cloudflare Workers don't do this.
+# Original working commit ccf8bb76 didn't have this header.
+sed -i 's|headers.Set("Sec-WebSocket-Protocol", wsSubproto)|// headers.Set("Sec-WebSocket-Protocol", wsSubproto) // disabled: CF Workers dont echo subprotocol|' transport/v2raybale/client.go
+echo "Done"
+
+echo ""
+echo "=== Fix 2: Comment out Psiphon (TLS struct panic on Go 1.22+) ==="
+sed -i 's|"github.com/sagernet/sing-box/protocol/psiphon"|// "github.com/sagernet/sing-box/protocol/psiphon" // disabled: TLS struct mismatch on Go 1.22+|' include/registry.go
+sed -i 's|psiphon.RegisterOutbound(registry)|// psiphon.RegisterOutbound(registry)|' include/registry.go
+echo "Done"
+
+echo ""
+echo "=== Fix 3: Update .gitmodules to HTTPS ==="
+sed -i 's|git@github.com:|https://github.com/|' .gitmodules
+echo "Done"
+
+echo ""
+echo "=== Fix 4: Update README.md ==="
+cat > README.md << 'README'
 # hiddify-sing-box-bale
 
 Fork of [hiddify-sing-box](https://github.com/hiddify/hiddify-sing-box) with the **Bale protocol mimicry transport** compiled in. Part of [Project Mithra](https://github.com/projectmithra).
@@ -116,3 +144,23 @@ Note: Cross-compiling with `GOOS=linux GOARCH=arm64` produces static binaries th
 ## License
 
 This project is licensed under the same terms as the original [hiddify-sing-box](https://github.com/hiddify/hiddify-sing-box).
+README
+echo "Done"
+
+echo ""
+echo "=== Verifying fixes ==="
+echo ""
+echo "Sec-WebSocket-Protocol (should be commented out):"
+grep "Sec-WebSocket-Protocol" transport/v2raybale/client.go
+echo ""
+echo "Psiphon (should be commented out):"
+grep "psiphon" include/registry.go
+echo ""
+echo ".gitmodules (should show https://):"
+cat .gitmodules
+echo ""
+echo "=== All fixes applied. Now run: ==="
+echo "  git add -A"
+echo "  git status"
+echo "  git commit -m 'fix: build issues, documentation, submodule URLs'"
+echo "  git push origin extended"

@@ -244,7 +244,7 @@ func NewClient(ctx context.Context, dialer N.Dialer, serverAddr M.Socksaddr, opt
 	if wsSubproto == "" {
 		wsSubproto = "binary"
 	}
-	headers.Set("Sec-WebSocket-Protocol", wsSubproto)
+	// headers.Set("Sec-WebSocket-Protocol", wsSubproto) // disabled: CF Workers dont echo subprotocol
 
 	if headers.Get("User-Agent") == "" {
 		headers.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")

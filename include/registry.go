@@ -32,7 +32,7 @@ import (
 	"github.com/sagernet/sing-box/protocol/mieru"
 	"github.com/sagernet/sing-box/protocol/mixed"
 	"github.com/sagernet/sing-box/protocol/naive"
-	"github.com/sagernet/sing-box/protocol/psiphon"
+	// "github.com/sagernet/sing-box/protocol/psiphon" // disabled: TLS struct mismatch on Go 1.22+
 	"github.com/sagernet/sing-box/protocol/redirect"
 	"github.com/sagernet/sing-box/protocol/shadowsocks"
 	"github.com/sagernet/sing-box/protocol/shadowtls"
@@ -102,7 +102,7 @@ func OutboundRegistry() *outbound.Registry {
 	ssh.RegisterOutbound(registry)
 	shadowtls.RegisterOutbound(registry)
 	vless.RegisterOutbound(registry)
-	psiphon.RegisterOutbound(registry)
+	// psiphon.RegisterOutbound(registry)
 	mieru.RegisterOutbound(registry)
 	anytls.RegisterOutbound(registry)
 	hinvalid.RegisterOutbound(registry)
