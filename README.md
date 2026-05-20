@@ -4,6 +4,25 @@ Fork of [hiddify-sing-box](https://github.com/hiddify/hiddify-sing-box) with the
 
 The Bale transport makes proxy tunnel traffic indistinguishable from legitimate [Bale messenger](https://bale.ai) sessions at every layer of DPI inspection.
 
+---
+
+> ### ⚠️ Deployment Status — May 2026
+>
+> The Bale transport is fully functional at the protocol level — it compiles, passes tests, and successfully tunnels traffic through DPI when the CDN edge is reachable. However, Iran's current filtering environment limits end-to-end deployment:
+>
+> - **TCI (fixed-line):** Enforces a Layer 3 IP whitelist that blocks all Cloudflare IP ranges. The CDN routing layer cannot currently reach TCI home internet users.
+> - **MCI (mobile):** Shows intermittent Cloudflare connectivity but with aggressive DPI throttling that terminates sustained WebSocket connections within approximately 2 minutes.
+>
+> **This fork is published for:**
+> - Community review of the Bale transport implementation and SingBox integration approach
+> - Testing by developers and researchers with access to alternative CDN routing paths
+> - Reference for the Bale protobuf wire format, handshake sequence, and frame padding — saving other researchers months of reverse engineering
+> - Preparation for a future upstream pull request to the Hiddify team when conditions and coordination permit
+>
+> See [bale-transport](https://github.com/projectmithra/bale-transport) for full protocol documentation, the standalone binary, and current deployment status.
+
+---
+
 ## Building
 
 ### Prerequisites
@@ -111,7 +130,7 @@ Note: Cross-compiling with `GOOS=linux GOARCH=arm64` produces static binaries th
 
 - [projectmithra/bale-transport](https://github.com/projectmithra/bale-transport) — Core protobuf codec, standalone binary, Worker, unwrapper
 - [projectmithra/open-ip-lane](https://github.com/projectmithra/open-ip-lane) — Scanning methodology
-- [projectmithra/cloudflare-worker](https://github.com/projectmithra/cloudflare-worker) — Edge relay
+- [projectmithra/cloudflare-worker](https://github.com/projectmithra/cloudflare-worker) — Edge relay - Still a private repo and working on optimization 
 
 ## License
 
