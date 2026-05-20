@@ -6,7 +6,7 @@ The Bale transport makes proxy tunnel traffic indistinguishable from legitimate 
 
 ---
 
-> ### ⚠️ Deployment Status — May 2026
+> ### Deployment Status — May 2026
 >
 > The Bale transport is fully functional at the protocol level — it compiles, passes tests, and successfully tunnels traffic through DPI when the CDN edge is reachable. However, Iran's current filtering environment limits end-to-end deployment:
 >
