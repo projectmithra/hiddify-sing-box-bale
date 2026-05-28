@@ -4,15 +4,7 @@ Fork of [hiddify-sing-box](https://github.com/hiddify/hiddify-sing-box) with the
 
 The Bale transport makes proxy tunnel traffic indistinguishable from legitimate [Bale messenger](https://bale.ai) sessions at every layer of DPI inspection.
 
----
 
-> ### Deployment Status — May 2026
->
-> The Bale transport is fully functional at the protocol level — it compiles, passes tests, and successfully tunnels traffic through DPI when the CDN edge is reachable. However, Iran's current filtering environment limits end-to-end deployment:
->
-> - **TCI (fixed-line):** Enforces a Layer 3 IP whitelist that blocks all Cloudflare IP ranges. The CDN routing layer cannot currently reach TCI home internet users.
-> - **MCI (mobile):** Shows intermittent Cloudflare connectivity but with aggressive DPI throttling that terminates sustained WebSocket connections within approximately 2 minutes.
->
 > **This fork is published for:**
 > - Community review of the Bale transport implementation and SingBox integration approach
 > - Testing by developers and researchers with access to alternative CDN routing paths
