@@ -1,0 +1,91 @@
+name: Build sing-box with Bale transport
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [extended]
+    paths-ignore: ['**.md', '.github/workflows/build-apk.yml']
+
+jobs:
+  build:
+    name: Build ${{ matrix.goos }}-${{ matrix.goarch }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            suffix: linux-amd64
+          - goos: linux
+            goarch: arm64
+            suffix: android-arm64
+          - goos: windows
+            goarch: amd64
+            suffix: windows-amd64.exe
+
+    steps:
+      - name: Checkout hiddify-sing-box-bale
+        uses: actions/checkout@v4
+        with:
+          path: hiddify-sing-box-bale
+
+      - name: Checkout bale-transport (protobuf codec)
+        uses: actions/checkout@v4
+        with:
+          repository: projectmithra/bale-transport
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: bale-transport
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache: true
+
+      - name: Add bale-transport dependency
+        working-directory: hiddify-sing-box-bale
+        run: |
+          # Add bale-transport require and local replace
+          echo 'require github.com/projectmithra/bale-transport v0.0.0' >> go.mod
+          echo 'replace github.com/projectmithra/bale-transport => ../bale-transport' >> go.mod
+          go mod tidy
+
+      - name: Build
+        working-directory: hiddify-sing-box-bale
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: |
+          go build -v \
+            -ldflags="-s -w" \
+            -tags "with_gvisor,with_quic,with_utls,with_ech" \
+            -trimpath \
+            -o ../sing-box-bale-${{ matrix.suffix }} \
+            ./cmd/sing-box
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sing-box-bale-${{ matrix.suffix }}
+          path: sing-box-bale-${{ matrix.suffix }}
+
+  release:
+    name: Create release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: bale-${{ github.run_number }}
+          name: "Bale Transport Build #${{ github.run_number }}"
+          draft: false
+          files: |
+            sing-box-bale-linux-amd64/sing-box-bale-linux-amd64
+            sing-box-bale-android-arm64/sing-box-bale-android-arm64
+            sing-box-bale-windows-amd64.exe/sing-box-bale-windows-amd64.exe

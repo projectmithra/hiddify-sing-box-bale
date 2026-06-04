@@ -1,0 +1,164 @@
+name: Build Hiddify APK with Bale transport
+
+on:
+  workflow_dispatch:
+    inputs:
+      hiddify_core_version:
+        description: 'Hiddify core version tag (e.g., v4.1.0)'
+        required: true
+        default: 'v4.1.0'
+      hiddify_next_ref:
+        description: 'Hiddify-Next branch/tag'
+        required: true
+        default: 'main'
+
+env:
+  GO_VERSION: '1.24'
+  FLUTTER_VERSION: '3.29.3'
+
+jobs:
+  build-core:
+    name: Build hiddify-core .aar with Bale transport
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout hiddify-sing-box-bale (our custom sing-box)
+        uses: actions/checkout@v4
+        with:
+          path: hiddify-sing-box-bale
+
+      - name: Checkout bale-transport (protobuf codec)
+        uses: actions/checkout@v4
+        with:
+          repository: projectmithra/bale-transport
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: bale-transport
+
+      - name: Checkout hiddify-next-core
+        uses: actions/checkout@v4
+        with:
+          repository: hiddify/hiddify-next-core
+          ref: ${{ inputs.hiddify_core_version }}
+          path: hiddify-next-core
+          submodules: true
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1
+        id: ndk
+        with:
+          ndk-version: r27c
+
+      - name: Install gomobile
+        run: |
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          go install golang.org/x/mobile/cmd/gobind@latest
+          gomobile init
+
+      - name: Patch hiddify-next-core to use our sing-box fork
+        working-directory: hiddify-next-core
+        run: |
+          # Add bale-transport dependency
+          echo "" >> go.mod
+          echo "require github.com/projectmithra/bale-transport v0.0.0" >> go.mod
+          
+          # Replace sing-box with our bale-enabled fork
+          echo "replace github.com/sagernet/sing-box => ../hiddify-sing-box-bale" >> go.mod
+          
+          # Replace bale-transport with local checkout
+          echo "replace github.com/projectmithra/bale-transport => ../bale-transport" >> go.mod
+          
+          # Tidy
+          GONOSUMDB='*' GONOSUMCHECK='*' GOFLAGS='-mod=mod' go mod tidy || true
+          
+          echo "=== Patched go.mod (last 10 lines) ==="
+          tail -10 go.mod
+
+      - name: Build Android .aar
+        working-directory: hiddify-next-core
+        env:
+          ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
+        run: |
+          TAGS="with_gvisor,with_quic,with_utls,with_ech,with_dhcp,with_wireguard,with_reality_server,with_clash_api,with_v2ray_api,with_grpc"
+          
+          CGO_LDFLAGS="-O2 -g -s -w -Wl,-z,max-page-size=16384" \
+          gomobile bind -v \
+            -androidapi=21 \
+            -javapkg=com.hiddify.core \
+            -libname=hiddify-core \
+            -tags="$TAGS" \
+            -trimpath \
+            -ldflags="-s -w" \
+            -target=android \
+            -o hiddify-core.aar \
+            github.com/sagernet/sing-box/experimental/libbox \
+            ./platform/mobile
+          
+          ls -la hiddify-core.aar
+
+      - name: Upload .aar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hiddify-core-bale-aar
+          path: hiddify-next-core/hiddify-core.aar
+
+  build-apk:
+    name: Build Hiddify APK
+    needs: build-core
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Hiddify-Next
+        uses: actions/checkout@v4
+        with:
+          repository: hiddify/hiddify-next
+          ref: ${{ inputs.hiddify_next_ref }}
+          submodules: true
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download custom .aar
+        uses: actions/download-artifact@v4
+        with:
+          name: hiddify-core-bale-aar
+          path: android/app/libs/
+
+      - name: Verify .aar
+        run: |
+          ls -la android/app/libs/
+          echo "Custom Bale-enabled core downloaded"
+
+      - name: Flutter setup
+        run: |
+          flutter pub get
+          dart run build_runner build --delete-conflicting-outputs || true
+
+      - name: Build debug APK
+        run: |
+          flutter build apk --debug \
+            --target=lib/main.dart \
+            --target-platform android-arm64
+
+      - name: Rename APK
+        run: |
+          mv build/app/outputs/flutter-apk/app-debug.apk \
+             build/app/outputs/flutter-apk/Hiddify-Bale-debug.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hiddify-Bale-APK
+          path: build/app/outputs/flutter-apk/Hiddify-Bale-debug.apk

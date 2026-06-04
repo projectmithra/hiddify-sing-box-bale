@@ -173,6 +173,7 @@ require (
 	github.com/pion/webrtc/v3 v3.2.40 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
+	github.com/projectmithra/bale-transport v0.0.0-20260416111529-a338367fc251 // indirect
 	github.com/prometheus-community/pro-bing v0.4.0 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/refraction-networking/conjure v0.7.11-0.20240130155008-c8df96195ab2 // indirect
@@ -255,3 +256,8 @@ replace github.com/sagernet/tailscale => ./replace/tailscale
 replace github.com/Psiphon-Labs/quic-go => ./replace/psiphon-quic-go
 
 replace github.com/Psiphon-Labs/psiphon-tls => ./replace/psiphon-tls
+
+// Bale protocol mimicry transport (Project Mithra)
+require github.com/projectmithra/bale-transport v0.2.0
+
+replace github.com/projectmithra/bale-transport => ../bale-transport

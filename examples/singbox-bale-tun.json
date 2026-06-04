@@ -1,0 +1,58 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "dns": {
+    "servers": [
+      { "address": "udp://8.8.8.8", "detour": "proxy" },
+      { "address": "local", "detour": "direct" }
+    ],
+    "rules": [
+      { "outbound": "any", "server": "local" }
+    ]
+  },
+  "inbounds": [
+    {
+      "type": "tun",
+      "inet4_address": "172.19.0.1/30",
+      "auto_route": true,
+      "strict_route": true,
+      "sniff": true
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "vless",
+      "tag": "proxy",
+      "server": "188.114.97.3",
+      "server_port": 2053,
+      "uuid": "YOUR_UUID_HERE",
+      "tls": {
+        "enabled": true,
+        "server_name": "YOUR_WORKER_DOMAIN",
+        "utls": { "enabled": true, "fingerprint": "chrome" }
+      },
+      "transport": {
+        "type": "bale",
+        "worker_url": "wss://YOUR_WORKER_DOMAIN/w",
+        "origin": "https://web.bale.ai",
+        "path": "/w"
+      }
+    },
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "dns",
+      "tag": "dns-out"
+    }
+  ],
+  "route": {
+    "rules": [
+      { "protocol": "dns", "outbound": "dns-out" },
+      { "ip_is_private": true, "outbound": "direct" }
+    ],
+    "auto_detect_interface": true
+  }
+}
