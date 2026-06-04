@@ -13,7 +13,7 @@ on:
         default: 'main'
 
 env:
-  GO_VERSION: '1.25'
+  GO_VERSION: '1.25.6'
   FLUTTER_VERSION: '3.29.3'
 
 jobs:
@@ -56,8 +56,8 @@ jobs:
 
       - name: Install gomobile
         run: |
-          go install golang.org/x/mobile/cmd/gomobile@latest
-          go install golang.org/x/mobile/cmd/gobind@latest
+          GOTOOLCHAIN=local go install golang.org/x/mobile/cmd/gomobile@latest
+          GOTOOLCHAIN=local go install golang.org/x/mobile/cmd/gobind@latest
           gomobile init
 
       - name: Patch hiddify-next-core to use our sing-box fork
@@ -85,6 +85,7 @@ jobs:
         working-directory: hiddify-next-core
         env:
           ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
+          GOTOOLCHAIN: local
         run: |
           TAGS="with_gvisor,with_quic,with_utls,with_dhcp,with_wireguard,with_clash_api,with_v2ray_api,with_grpc"
           
