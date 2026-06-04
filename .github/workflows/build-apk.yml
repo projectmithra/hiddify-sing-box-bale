@@ -121,7 +121,7 @@ jobs:
         with:
           repository: hiddify/hiddify-next
           ref: ${{ inputs.hiddify_next_ref }}
-          submodules: true
+          # submodules not needed - we supply our own .aar
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
