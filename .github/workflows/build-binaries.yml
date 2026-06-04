@@ -60,7 +60,7 @@ jobs:
         run: |
           go build -v \
             -ldflags="-s -w" \
-            -tags "with_gvisor,with_quic,with_utls,with_ech" \
+            -tags "with_gvisor,with_quic,with_utls" \
             -trimpath \
             -o ../sing-box-bale-${{ matrix.suffix }} \
             ./cmd/sing-box
