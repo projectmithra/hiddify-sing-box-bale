@@ -15,18 +15,50 @@ The Bale transport makes proxy tunnel traffic indistinguishable from legitimate 
 
 ---
 
-## Building
+## Pre-built Binaries (CI/CD)
+
+Pre-built binaries and APKs are available via GitHub Actions — no local build environment required.
+
+### Download binaries
+
+Go to [Actions → Build sing-box with Bale transport](../../actions/workflows/build-binaries.yml) → click the latest green run → scroll to **Artifacts** and download:
+
+| Artifact | Platform | Use case |
+|----------|----------|----------|
+| `sing-box-bale-linux-amd64` | Linux x86_64 | Servers, WSL, desktop Linux |
+| `sing-box-bale-android-arm64` | Android ARM64 | Termux on Android phones |
+| `sing-box-bale-windows-amd64.exe` | Windows x86_64 | Windows desktop |
+
+Binaries are built automatically on every push to the `extended` branch, or on manual dispatch.
+
+### Download Hiddify APK
+
+Go to [Actions → Build Hiddify APK with Bale transport](../../actions/workflows/build-apk.yml) → **Run workflow** → download the `Hiddify-Bale-APK` artifact.
+
+This builds a complete Hiddify Android app with the Bale transport compiled in. Install the APK, import a JSON config with `"type": "bale"` transport, and connect — no Termux or command line needed.
+
+### Trigger a build manually
+
+1. Go to the [Actions tab](../../actions)
+2. Select the workflow
+3. Click **Run workflow**
+4. Download artifacts from the completed run
+
+---
+
+## Manual Building
 
 ### Prerequisites
 
 - Go 1.22+
 - Git
-- Android NDK r27+ (for Android builds)
+- [bale-transport](https://github.com/projectmithra/bale-transport) cloned alongside this repo
 
-### Clone and initialize submodules
+### Clone and initialize
 
 ```bash
 git clone --branch extended https://github.com/projectmithra/hiddify-sing-box-bale.git
+git clone https://github.com/projectmithra/bale-transport.git
 cd hiddify-sing-box-bale
 git submodule update --init --recursive
 ```
@@ -37,22 +69,19 @@ git submodule update --init --recursive
 go build -ldflags="-s -w" -tags "with_gvisor,with_quic,with_utls" -o sing-box-bale ./cmd/sing-box
 ```
 
-### Build for Android (arm64)
-
-Requires Android NDK. Android 14+ requires PIE executables built with NDK.
+### Build for Android (arm64) — Termux-compatible
 
 ```bash
-export CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android35-clang
-CGO_ENABLED=1 GOOS=android GOARCH=arm64 CC=$CC go build -ldflags="-s -w" -tags "with_quic,with_utls" -o sing-box-bale-android ./cmd/sing-box
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -tags "with_gvisor,with_quic,with_utls" -o sing-box-bale-android ./cmd/sing-box
 ```
-
-Note: Cross-compiling with `GOOS=linux GOARCH=arm64` produces static binaries that Android 14+ rejects (requires PIE). Always use `GOOS=android` with the NDK toolchain for Android targets.
 
 ### Known build issues
 
-- **Psiphon TLS panic**: The `replace/psiphon-tls` submodule causes a `ConnectionState field count mismatch` panic on Go 1.22+. The Psiphon import is commented out in `include/registry.go` as it is not required for the Bale transport.
-- **`with_ech` build tag**: Deprecated in newer sing-box versions. Omit it from build tags.
-- **Submodules**: Always run `git submodule update --init --recursive` after cloning. Without this, the build fails with missing `replace/psiphon-tls/go.mod`.
+- **`with_ech` and `with_reality_server` build tags**: Deprecated in newer sing-box versions. Omit from build tags.
+- **Submodules**: Always run `git submodule update --init --recursive` after cloning.
+- **bale-transport dependency**: The `go.mod` includes a `replace` directive pointing to `../bale-transport`. Clone the [bale-transport](https://github.com/projectmithra/bale-transport) repo alongside this one.
+
+---
 
 ## Client Configuration
 
@@ -113,16 +142,20 @@ Note: Cross-compiling with `GOOS=linux GOARCH=arm64` produces static binaries th
 | Frame sizes | Padded to Bale distribution | Yes |
 | Keepalive | Ping/Pong every ~25s +/-3s | Yes |
 
-## Tested Platforms
+## Deploying the Full Stack
 
-- Linux amd64 (Debian) — verified end-to-end
-- Android arm64 (Termux, Android 16) — verified end-to-end via NDK build
+The complete system requires three components. Each has its own repo with deployment instructions:
+
+1. **This repo** — Client binary or Hiddify APK (download from CI or build manually)
+2. **[cloudflare-worker](https://github.com/projectmithra/cloudflare-worker)** — Deploy on Cloudflare free tier, edit two config lines
+3. **[bale-transport](https://github.com/projectmithra/bale-transport)** — `docker compose up -d` on any VPS for the unwrapper + xray server
 
 ## Related Repositories
 
-- [projectmithra/bale-transport](https://github.com/projectmithra/bale-transport) — Core protobuf codec, standalone binary, Worker, unwrapper
-- [projectmithra/open-ip-lane](https://github.com/projectmithra/open-ip-lane) — Scanning methodology
-- [projectmithra/cloudflare-worker](https://github.com/projectmithra/cloudflare-worker) — Edge relay
+- [projectmithra/bale-transport](https://github.com/projectmithra/bale-transport) — Core protobuf codec, standalone binary, server unwrapper, Docker deployment
+- [projectmithra/cloudflare-worker](https://github.com/projectmithra/cloudflare-worker) — Edge relay with active probing resistance
+- [projectmithra/open-ip-lane](https://github.com/projectmithra/open-ip-lane) — CDN IP scanning methodology
+
 ## License
 
 This project is licensed under the same terms as the original [hiddify-sing-box](https://github.com/hiddify/hiddify-sing-box).
