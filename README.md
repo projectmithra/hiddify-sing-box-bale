@@ -122,8 +122,7 @@ Note: Cross-compiling with `GOOS=linux GOARCH=arm64` produces static binaries th
 
 - [projectmithra/bale-transport](https://github.com/projectmithra/bale-transport) — Core protobuf codec, standalone binary, Worker, unwrapper
 - [projectmithra/open-ip-lane](https://github.com/projectmithra/open-ip-lane) — Scanning methodology
-- [projectmithra/cloudflare-worker](https://github.com/projectmithra/cloudflare-worker) — Edge relay - Still a private repo and working on optimization 
-
+- [projectmithra/cloudflare-worker](https://github.com/projectmithra/cloudflare-worker) — Edge relay
 ## License
 
 This project is licensed under the same terms as the original [hiddify-sing-box](https://github.com/hiddify/hiddify-sing-box).
