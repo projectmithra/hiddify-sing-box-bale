@@ -74,6 +74,7 @@ jobs:
           echo "replace github.com/projectmithra/bale-transport => ../bale-transport" >> go.mod
           
           # Tidy
+          go get -tool golang.org/x/mobile/cmd/gobind
           GONOSUMDB='*' GONOSUMCHECK='*' GOFLAGS='-mod=mod' go mod tidy || true
           
           echo "=== Patched go.mod (last 10 lines) ==="
