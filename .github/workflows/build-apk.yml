@@ -63,6 +63,9 @@ jobs:
       - name: Patch hiddify-next-core to use our sing-box fork
         working-directory: hiddify-next-core
         run: |
+          # Remove existing sing-box replace (points to local submodule)
+          sed -i '/replace github.com\/sagernet\/sing-box/d' go.mod
+          
           # Add bale-transport dependency
           echo "" >> go.mod
           echo "require github.com/projectmithra/bale-transport v0.0.0" >> go.mod
@@ -73,12 +76,14 @@ jobs:
           # Replace bale-transport with local checkout
           echo "replace github.com/projectmithra/bale-transport => ../bale-transport" >> go.mod
           
-          # Tidy
+          # Add gomobile tool dependency
           go get -tool golang.org/x/mobile/cmd/gobind
+          
+          # Tidy
           GONOSUMDB='*' GONOSUMCHECK='*' GOFLAGS='-mod=mod' go mod tidy || true
           
-          echo "=== Patched go.mod (last 10 lines) ==="
-          tail -10 go.mod
+          echo "=== Patched go.mod (last 15 lines) ==="
+          tail -15 go.mod
 
       - name: Build Android .aar
         working-directory: hiddify-next-core
