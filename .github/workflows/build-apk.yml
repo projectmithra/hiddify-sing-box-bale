@@ -72,7 +72,7 @@ jobs:
           echo "replace github.com/projectmithra/bale-transport => ../bale-transport" >> go.mod
           
           # Add gomobile tool dependency
-          go get -tool golang.org/x/mobile/cmd/gobind
+          go get -tool github.com/sagernet/gomobile/cmd/gobind
           
           # Tidy
           GONOSUMDB='*' GONOSUMCHECK='*' GOFLAGS='-mod=mod' go mod tidy || true
@@ -87,16 +87,18 @@ jobs:
           ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
           GOTOOLCHAIN: local
         run: |
-          TAGS="with_gvisor,with_quic,with_utls,with_dhcp,with_wireguard,with_clash_api,with_v2ray_api,with_grpc"
+          TAGS="with_gvisor,with_quic,with_wireguard,with_utls,with_clash_api,with_grpc"
           
           CGO_LDFLAGS="-O2 -g -s -w -Wl,-z,max-page-size=16384" \
           gomobile bind -v \
             -androidapi=21 \
             -javapkg=com.hiddify.core \
+            -libname=hiddify-core \
             -tags="$TAGS" \
             -trimpath \
-            -ldflags="-s -w" \
+            -ldflags="-w -s -checklinkname=0 -buildid=" \
             -target=android \
+            -gcflags "all=-N -l" \
             -o hiddify-core.aar \
             github.com/sagernet/sing-box/experimental/libbox \
             ./platform/mobile
