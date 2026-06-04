@@ -90,7 +90,6 @@ jobs:
           gomobile bind -v \
             -androidapi=21 \
             -javapkg=com.hiddify.core \
-            -libname=hiddify-core \
             -tags="$TAGS" \
             -trimpath \
             -ldflags="-s -w" \
