@@ -56,8 +56,8 @@ jobs:
 
       - name: Install gomobile
         run: |
-          GOTOOLCHAIN=local go install golang.org/x/mobile/cmd/gomobile@latest
-          GOTOOLCHAIN=local go install golang.org/x/mobile/cmd/gobind@latest
+          go install -v github.com/sagernet/gomobile/cmd/gomobile@v0.1.11
+          go install -v github.com/sagernet/gomobile/cmd/gobind@v0.1.11
           gomobile init
 
       - name: Patch hiddify-next-core to use our sing-box fork
