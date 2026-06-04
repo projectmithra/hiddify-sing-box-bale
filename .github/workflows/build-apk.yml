@@ -25,12 +25,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: hiddify-sing-box-bale
+          submodules: recursive
 
       - name: Checkout bale-transport (protobuf codec)
         uses: actions/checkout@v4
         with:
           repository: projectmithra/bale-transport
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
           path: bale-transport
 
       - name: Checkout hiddify-next-core
@@ -83,7 +84,7 @@ jobs:
         env:
           ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
         run: |
-          TAGS="with_gvisor,with_quic,with_utls,with_ech,with_dhcp,with_wireguard,with_reality_server,with_clash_api,with_v2ray_api,with_grpc"
+          TAGS="with_gvisor,with_quic,with_utls,with_dhcp,with_wireguard,with_reality_server,with_clash_api,with_v2ray_api,with_grpc"
           
           CGO_LDFLAGS="-O2 -g -s -w -Wl,-z,max-page-size=16384" \
           gomobile bind -v \
