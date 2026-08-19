@@ -8,7 +8,7 @@ The Bale transport makes proxy tunnel traffic indistinguishable from legitimate 
 > **This fork is published for:**
 > - Community review of the Bale transport implementation and SingBox integration approach
 > - Testing by developers and researchers with access to alternative CDN routing paths
-> - Reference for the Bale protobuf wire format, handshake sequence, and frame padding — saving other researchers months of reverse engineering
+> - Reference for the Bale protobuf wire format, handshake sequence, and frame padding - saving other researchers months of reverse engineering
 > - Preparation for a future upstream pull request to the Hiddify team when conditions and coordination permit
 >
 > See [bale-transport](https://github.com/projectmithra/bale-transport) for full protocol documentation, the standalone binary, and current deployment status.
@@ -17,7 +17,7 @@ The Bale transport makes proxy tunnel traffic indistinguishable from legitimate 
 
 ## Pre-built Binaries (CI/CD)
 
-Pre-built binaries and APKs are available via GitHub Actions — no local build environment required.
+Pre-built binaries and APKs are available via GitHub Actions - no local build environment required.
 
 ### Download binaries
 
@@ -35,7 +35,7 @@ Binaries are built automatically on every push to the `extended` branch, or on m
 
 Go to [Actions → Build Hiddify APK with Bale transport](../../actions/workflows/build-apk.yml) → **Run workflow** → download the `Hiddify-Bale-APK` artifact.
 
-This builds a complete Hiddify Android app with the Bale transport compiled in. Install the APK, import a JSON config with `"type": "bale"` transport, and connect — no Termux or command line needed.
+This builds a complete Hiddify Android app with the Bale transport compiled in. Install the APK, import a JSON config with `"type": "bale"` transport, and connect - no Termux or command line needed.
 
 ### Trigger a build manually
 
